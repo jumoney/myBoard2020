@@ -4,16 +4,16 @@ html, body {
 	margin: 0;
 	padding: 0;
 	height: 100%;
-	width: 100%;
+	width: 100%;	
 }
 
-#flexContainer {
-	display: flex;
-	height: 100%;
-}
-
-a{
+a {
 	text-decoration: none;
+}
+
+.flexContainer {
+	display: flex;
+	height: 100%;	
 }
 
 .flexCenter {
@@ -27,6 +27,10 @@ a{
 
 .solidForm {
 	padding: 15px;
-	border: 1px solid #bdc3c7;
+	border: 1px solid #7f8c8d;
+}
+
+#msg {
+	color: red;
 }
 
