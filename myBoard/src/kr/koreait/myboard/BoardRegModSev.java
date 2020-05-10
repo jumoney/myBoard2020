@@ -17,10 +17,10 @@ import kr.koreait.myboard.vo.UserVO;
 @WebServlet("/boardRegmod")
 public class BoardRegModSev extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
+   
 	//화면 띄우는 용도
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		//세션에 값 세팅
+		//세션에 값세팅
 		HttpSession hs = request.getSession();
 		UserVO loginUser = (UserVO)hs.getAttribute("loginUser");
 		if(loginUser == null) {
@@ -35,31 +35,26 @@ public class BoardRegModSev extends HttpServlet {
 	//작업 용도(insert, update)
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession hs = request.getSession();
-		UserVO loginUser = (UserVO)hs.getAttribute("loginUser");
+		UserVO loginUser = (UserVO)hs.getAttribute("loginUser");		
 		int i_user = loginUser.getI_user();
 		
 		String title = request.getParameter("title");
 		String content = request.getParameter("content");
 		
+		System.out.println("i_user : " + i_user);
+		System.out.println("title : " + title);
+		System.out.println("content : " + content);
 		
-		System.out.println("i_user: " + i_user);
-		System.out.println("title: " + title);
-		System.out.println("content: " + content);
+		BoardVO bVO = new BoardVO();
+		bVO.setTitle(title);
+		bVO.setContent(content);
+		bVO.setI_user(i_user);
 		
+		BoardDAO.insertBoard(bVO);
 		
-		BoardVO bVo = new BoardVO();
-		
-		bVo.setTitle(title);
-		bVo.setContent(content);
-		bVo.setI_user(i_user);
-		
-		
-		
-			int result = BoardDAO.insertBoard(bVo);
-			response.sendRedirect("/boardList");
-		
-			
-		}
+		response.sendRedirect("/boardList");
 	}
+
+}
 
 

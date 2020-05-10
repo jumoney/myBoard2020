@@ -9,7 +9,8 @@ import java.util.List;
 import kr.koreait.myboard.vo.BoardVO;
 
 public class BoardDAO {
-	//------------------CREATE(insert)
+	
+	//------------------------------------------------- Create (insert)
 	public static int insertBoard(BoardVO param) {
 		int result = 0;
 		
@@ -38,7 +39,8 @@ public class BoardDAO {
 		return result;
 	}
 	
-	//------------------SELECT(select)
+	
+	//------------------------------------------------- Read (select)
 	public static BoardVO getBoard(BoardVO param) {
 		BoardVO vo = null;
 		
@@ -94,25 +96,23 @@ public class BoardDAO {
 		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
-		
-		String sql = " SELECT "
-				+ " CEIL(COUNT(i_board) / ?) AS cnt "
+		String sql = " SELECT CEIL(COUNT(i_board) / ?) AS cnt "
 				+ " FROM t_board ";
+		
 		if(param.getSearch() != null) {
-			sql += " WHERE title LIKE '%" + param.getSearch() + "% ' ";
-		}
+			sql += " WHERE title LIKE '%" + param.getSearch() + "%' ";
+		}		
 		
 		try {
 			con = DbBridge.getCon();
 			ps = con.prepareStatement(sql);
-			ps.setInt(1, param.getRowCnt());			
+			ps.setInt(1, param.getRowCnt());
 			
 			rs = ps.executeQuery();
 			
 			if(rs.next()) {
 				totalPageCnt = rs.getInt("cnt");
-			}
-		
+			}	
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -124,52 +124,49 @@ public class BoardDAO {
 	
 	public static List<BoardVO> getBoardList(BoardVO param) {
 		List<BoardVO> list = new ArrayList();
-		BoardVO vo = null;
+		
 		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
-		
-		
-		String sql = " SELECT "
-				+ " A.i_board, A.title, A.hits, A.r_dt "
-				+ " , B.u_nickname "
-				+ " , C.i_user, ifnull(C.img, '') as img "
+		String sql = " SELECT A.i_board, A.title, A.hits, A.r_dt "
+				+ " , B.u_nickname , C.i_user, ifnull(C.img, '') as img "
 				+ " FROM t_board A "
 				+ " INNER JOIN t_user B "
 				+ " ON A.i_user = B.i_user "
-				+ " LEFT JOIN t_user_img C "
-				+ " ON A.i_user = C.i_user "
-				+ " AND C.seq = 1 "
-				+ " ORDER BY A.r_dt DESC "
-				+ " LIMIT ?, ?";
+				+ " LEFT JOIN t_user_img C " 
+ 				+ " ON A.i_user = C.i_user "
+				+ " AND C.seq = 1 ";
+			
+		if(param.getSearch() != null) {
+			sql += " WHERE title LIKE '%" + param.getSearch() + "%' ";
+		}		
+		sql += " ORDER BY r_dt DESC LIMIT ?, ? ";
 		
 		try {
 			con = DbBridge.getCon();
 			ps = con.prepareStatement(sql);
-			ps.setInt(1, param.getsIdx());	
+			ps.setInt(1, param.getsIdx());
 			ps.setInt(2, param.getRowCnt());
 			
 			rs = ps.executeQuery();
 			
 			while(rs.next()) {
-				vo = new BoardVO();
 				int i_board = rs.getInt("i_board");
 				String title = rs.getString("title");
 				int hits = rs.getInt("hits");
-				int i_user = rs.getInt("i_user");
 				String r_dt = rs.getString("r_dt");
+				int i_user = rs.getInt("i_user");
 				String u_nickname = rs.getString("u_nickname");
-				String img = rs.getString("img");	
+				String img = rs.getString("img");
 				
-				
+				BoardVO vo = new BoardVO();
 				vo.setI_board(i_board);
 				vo.setTitle(title);
 				vo.setHits(hits);
 				vo.setR_dt(r_dt);
-				vo.setU_nickname(u_nickname);
 				vo.setI_user(i_user);
+				vo.setU_nickname(u_nickname);
 				vo.setImg(img);
-				
 				
 				list.add(vo);
 			}			
@@ -183,7 +180,10 @@ public class BoardDAO {
 		return list;
 	}
 	
-	//------------------UPDATE(update)
+	
+	
+	//------------------------------------------------- Update (update)
+	//조회수 수정
 	public static int updateBoardHits(BoardVO param) {
 		int result = 0;
 		Connection con = null;
@@ -208,32 +208,35 @@ public class BoardDAO {
 		
 		return result;
 	}
-	//------------------DELETE(delete)
-		public static int delBoard(BoardVO param) {
-			int result = 0;
-			Connection con = null;
-			PreparedStatement ps = null;
-				
-			String sql = " DELETE FROM t_board "
-					+ "WHERE i_board = ? "
-					+ "AND i_user = ?";
-				
-			try {
-				con = DbBridge.getCon();
-				ps = con.prepareStatement(sql);
-				ps.setInt(1, param.getI_board());
-				ps.setInt(2, param.getI_user());
-					
-				result = ps.executeUpdate();
-				
-			} catch (Exception e) {			
-				e.printStackTrace();
-			} finally {
-				DbBridge.close(con, ps, null);
-			}
-			
-			return result;
-			
-		}
 	
+	
+	//------------------------------------------------- Delete (delete)
+	
+	public static int delBoard(BoardVO param) {
+		int result = 0;
+		Connection con = null;
+		PreparedStatement ps = null;		
+		
+		String sql = " DELETE FROM t_board "
+				+ " WHERE i_board = ? "
+				+ " AND i_user = ? ";	
+		
+		try {
+			con = DbBridge.getCon();
+			ps = con.prepareStatement(sql);
+			ps.setInt(1, param.getI_board());
+			ps.setInt(2, param.getI_user());
+			
+			result = ps.executeUpdate();
+			
+		} catch (Exception e) {			
+			e.printStackTrace();
+		} finally {
+			DbBridge.close(con, ps);
+		}
+		
+		return result;
+	}
 }
+
+
